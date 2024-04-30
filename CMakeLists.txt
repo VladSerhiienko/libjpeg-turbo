@@ -213,6 +213,9 @@ macro(boolean_number var)
   endif()
 endmacro()
 
+option(ENABLE_EXECUTABLES "Build shared libraries" OFF)
+boolean_number(ENABLE_EXECUTABLES)
+
 option(ENABLE_SHARED "Build shared libraries" TRUE)
 boolean_number(ENABLE_SHARED)
 option(ENABLE_STATIC "Build static libraries" TRUE)
@@ -721,6 +724,7 @@ if(WITH_TURBOJPEG)
         LINK_FLAGS "${TJMAPFLAG}${TJMAPFILE}")
     endif()
 
+    if (ENABLE_EXECUTABLES)
     add_executable(tjunittest tjunittest.c tjutil.c md5/md5.c md5/md5hl.c)
     target_link_libraries(tjunittest turbojpeg)
 
@@ -735,6 +739,7 @@ if(WITH_TURBOJPEG)
 
     add_custom_target(tjdoc COMMAND doxygen -s doxygen.config
       WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+    endif()
   endif()
 
   if(ENABLE_STATIC)
@@ -755,6 +760,7 @@ if(WITH_TURBOJPEG)
       set_target_properties(turbojpeg-static PROPERTIES OUTPUT_NAME turbojpeg)
     endif()
 
+    if (ENABLE_EXECUTABLES)
     add_executable(tjunittest-static tjunittest.c tjutil.c md5/md5.c
       md5/md5hl.c)
     target_link_libraries(tjunittest-static turbojpeg-static)
@@ -763,6 +769,7 @@ if(WITH_TURBOJPEG)
     target_link_libraries(tjbench-static turbojpeg-static)
     if(UNIX)
       target_link_libraries(tjbench-static m)
+    endif()
     endif()
   endif()
 endif()
@@ -782,12 +789,14 @@ if(ENABLE_STATIC)
   add_library(cjpeg16-static OBJECT rdgif.c rdppm.c)
   set_property(TARGET cjpeg16-static PROPERTY COMPILE_FLAGS
     "-DBITS_IN_JSAMPLE=16 -DGIF_SUPPORTED -DPPM_SUPPORTED")
+  if (ENABLE_EXECUTABLES)
   add_executable(cjpeg-static cjpeg.c cdjpeg.c rdbmp.c rdgif.c rdppm.c
     rdswitch.c rdtarga.c $<TARGET_OBJECTS:cjpeg12-static>
     $<TARGET_OBJECTS:cjpeg16-static>)
   set_property(TARGET cjpeg-static PROPERTY COMPILE_FLAGS
     ${CDJPEG_COMPILE_FLAGS})
   target_link_libraries(cjpeg-static jpeg-static)
+  endif()
 
   # Compile a separate version of these source files with 12-bit and 16-bit
   # data precision.
@@ -797,6 +806,7 @@ if(ENABLE_STATIC)
   add_library(djpeg16-static OBJECT wrppm.c)
   set_property(TARGET djpeg16-static PROPERTY COMPILE_FLAGS
     "-DBITS_IN_JSAMPLE=16 -DPPM_SUPPORTED")
+  if (ENABLE_EXECUTABLES)
   add_executable(djpeg-static djpeg.c cdjpeg.c rdcolmap.c rdswitch.c wrbmp.c
     wrgif.c wrppm.c wrtarga.c $<TARGET_OBJECTS:djpeg12-static>
     $<TARGET_OBJECTS:djpeg16-static>)
@@ -810,11 +820,14 @@ if(ENABLE_STATIC)
 
   add_executable(example-static example.c)
   target_link_libraries(example-static jpeg-static)
+  endif()
 endif()
 
+if (ENABLE_EXECUTABLES)
 add_executable(rdjpgcom rdjpgcom.c)
 
 add_executable(wrjpgcom wrjpgcom.c)
+endif()
 
 
 ###############################################################################
@@ -825,9 +838,11 @@ if(WITH_FUZZ)
   add_subdirectory(fuzz)
 endif()
 
+if (ENABLE_EXECUTABLES)
 add_executable(strtest strtest.c)
 
 add_subdirectory(md5)
+endif()
 
 if(GENERATOR_IS_MULTI_CONFIG)
   set(OBJDIR "\${CTEST_CONFIGURATION_TYPE}/")
