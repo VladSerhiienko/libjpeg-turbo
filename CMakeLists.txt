@@ -850,6 +850,7 @@ else()
   set(OBJDIR "")
 endif()
 
+if (ENABLE_EXECUTABLES)
 enable_testing()
 
 if(WITH_JAVA)
@@ -1836,3 +1837,5 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmakescripts/cmake_uninstall.cmake.i
   "cmake_uninstall.cmake" IMMEDIATE @ONLY)
 
 add_custom_target(uninstall COMMAND ${CMAKE_COMMAND} -P cmake_uninstall.cmake)
+
+endif()
